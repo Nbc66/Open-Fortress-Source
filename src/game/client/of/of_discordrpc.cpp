@@ -57,24 +57,43 @@ const char *g_aClassImage[] =
 	"civilian_ffa"
 };
 
-const char *g_aGameTypeNames_NonLocalized[] = // Move me?
+//For class names to be localized we are using this
+//-Nbc66
+const char* g_aClassNameLocalized[] =
+{
+	"#TF_Class_Name_Undefined",
+	"#TF_Class_Name_Scout",
+	"#TF_Class_Name_Sniper",
+	"#TF_Class_Name_Soldier",
+	"#TF_Class_Name_Demoman",
+	"#TF_Class_Name_Medic",
+	"#TF_Class_Name_HWGuy",
+	"#TF_Class_Name_Pyro",
+	"#TF_Class_Name_Spy",
+	"#TF_Class_Name_Engineer",
+	"#TF_Class_Name_Mercenary",
+	"#TF_Class_Name_Civilian"
+};
+
+
+const char *g_aGameTypeNames_Localized[] = // Move me?
 {                                 
 	"Undefined",                  
-	"Capture the Flag",           
-	"Control Point",              
-	"Payload",                    
-	"Arena",                      
-	"Mann vs Machine",            
-	"Robot Destruction",          
-	"Passtime",                   
-	"Player Destruction",         
-	"Escort",                     
-	"Deathmatch",                 
-	"Team Deathmatch",            
-	"Domination",                 
-	"Gun Game",                   
-	"3 Wave",                     
-	"Infection",                  
+	"#Gametype_CTF",           
+	"#Gametype_CP",              
+	"#Gametype_PAYLOAD",                    
+	"#Gametype_ARENA",                      
+	"#Gametype_MVM",            
+	"#Gametype_RD",          
+	"#Gametype_PASSTIME",                   
+	"#Gametype_PD",         
+	"#Gametype_ESC",                     
+	"#Gametype_DM",                 
+	"#Gametype_TDM",            
+	"#Gametype_DOM",                 
+	"#Gametype_GG",                   
+	"#Gametype_3WAVE",                     
+	"#Gametype_INF",                  
 };                                
                                   
 CTFDiscordRPC g_discordrpc;      
@@ -220,7 +239,7 @@ void CTFDiscordRPC::SetLogo( void )
 		if ( pTFPlayer->GetTeamNumber() != TEAM_SPECTATOR )
 		{
 			pszImageSmall = g_aClassImage[iClass];
-			pszImageText = g_aPlayerClassNames_NonLocalized[iClass];
+			pszImageText = LocalizeDiscordString(g_aClassNameLocalized[iClass]);
 		}
 		else
 		{
@@ -229,7 +248,7 @@ void CTFDiscordRPC::SetLogo( void )
 		}
 	}
 	if( TFGameRules() && TFGameRules()->IsInKothMode() )
-		pszGameType = "King of the Hill"; // Koth doesnt use TF_GAMETYPE so we detect it here
+		pszGameType = LocalizeDiscordString("#Gametype_KOTH"); // Koth doesnt use TF_GAMETYPE so we detect it here
 	else
 	{
 		// Game Mode
@@ -239,7 +258,7 @@ void CTFDiscordRPC::SetLogo( void )
 			{
 				if ( TFGameRules()->InGametype(i) )
 				{
-					pszGameType = g_aGameTypeNames_NonLocalized[i];
+					pszGameType = LocalizeDiscordString(g_aGameTypeNames_Localized[i]);
 				}
 					
 			}
@@ -251,6 +270,33 @@ void CTFDiscordRPC::SetLogo( void )
 	m_sDiscordRichPresence.smallImageKey = pszImageSmall;
 	m_sDiscordRichPresence.smallImageText = pszImageText;
 }
+
+
+//Function to get the localized string and then localize it on runtime
+//Use this to localize the rest of the strings
+//
+//Curently only localizes the class names on discord but it can localize anything
+//
+//-Nbc66
+const char* CTFDiscordRPC::LocalizeDiscordString(const char* LocalizedString)
+{
+
+	const wchar_t* WcharLocalizedString = g_pVGuiLocalize->Find(LocalizedString);
+	//we need to set the Char array to 256
+	//since ascii has 256 charachters and we need to account
+	//for every single one belive me. you dont want to change the array size
+	//or you are going to have a bad time with this whole function
+	//-Nbc66
+	char CharLocalizedArray[256];
+	g_pVGuiLocalize->ConvertUnicodeToANSI(WcharLocalizedString, CharLocalizedArray, sizeof(CharLocalizedArray));
+	const char* FinalCharLocalizedString = V_strdup(CharLocalizedArray);
+
+	return FinalCharLocalizedString;
+
+	delete[] FinalCharLocalizedString;
+}
+
+
 
 void CTFDiscordRPC::InitializeDiscord()
 {

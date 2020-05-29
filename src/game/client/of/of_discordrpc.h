@@ -45,6 +45,9 @@ private:
 	void UpdateNetworkInfo();
 	void SetLogo();
 
+	//localization only
+	const char* LocalizeDiscordString(const char* LocalizedString);
+
 	bool m_bErrored;
 	bool m_bInitializeRequested;
 	float m_flLastUpdatedTime;
